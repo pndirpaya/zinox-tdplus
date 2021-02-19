@@ -101,6 +101,7 @@ class CloseTicket extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         const payload = {
+            offlineticket_id: _id,
             ticket_id: _id,
             title: this.state.title,
             description: this.state.description,
@@ -267,7 +268,7 @@ class CloseTicket extends React.Component {
                                 <hr className='uk-margin-medium' />
                                 <div className='uk-width-1-1@m uk-margin-large'>
                                     <h3 className='uk-text-bold tag'><span>Job Tag: {this.state.ticket.job_tag}</span></h3>
-                                    <a href={'/part-order/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a>
+                                    {/* <a href={'/part-order/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a> */}
                                 </div>
                                 <div className='uk-margin'>
                                     <button className="uk-button  blue" type="button" data-uk-toggle="target: #toggle-usage"> <span uk-icon="icon: settings; ratio: 0.8"> </span>  Toggle Tracker Visibility</button>

@@ -477,10 +477,10 @@ class CreateJobTicketForm extends React.Component {
                                                     <a href='/' onClick={() => window.print()} className="uk-button uk-margin-right black_btn">Print Job Ticket</a>
                                                 </div>
                                                 <div className='uk-width-1-4@m'>
-                                                    <a href={'/' + this.state.ticket._id} className="uk-button uk-margin-right slider_btn">Track Job Ticket</a>
+                                                    <a href={'/tracker/' + this.state.ticket._id} className="uk-button uk-margin-right slider_btn">Track Job Ticket</a>
                                                 </div>
                                                 <div className='uk-width-1-4@m'>
-                                                    <a href={'/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a>
+                                                    <a href={'/part-order/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a>
                                                 </div>
                                             </div>
                                         }

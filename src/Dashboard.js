@@ -20,12 +20,12 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            OpenTickets: [],
-            PendingTickets: [],
-            OnHoldTickets: [],
-            AwaitingTickets: [],
-            RecievedTickets: [],
-            ClosedTickets: [],
+            OpenTickets: 0,
+            PendingTickets: 0,
+            OnHoldTickets: 0,
+            AwaitingTickets: 0,
+            RecievedTickets: 0,
+            ClosedTickets: 0,
             user: []
         }
 
@@ -137,7 +137,10 @@ class Dashboard extends React.Component {
             });
     }
     render() {
+        console.log(isNaN(this.state.OpenTickets))
+        
         var totaldevices = this.state.OpenTickets + this.state.PendingTickets + this.state.OnHoldTickets + this.state.AwaitingTickets + this.state.RecievedTickets + this.state.ClosedTickets
+       
         return (
             <div>
                 <section className="uk-grid-small uk-grid-match uk-text-left" data-uk-grid data-uk-height-viewport>
@@ -152,22 +155,22 @@ class Dashboard extends React.Component {
                                 <p className='uk-margin-large-bottom'>Welcome to your Dashboard</p>
                                 <div data-uk-grid>
                                     <div className='uk-width-1-4@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Open Jobs <span className='open_percentage uk-margin-left'>{(this.state.OpenTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Open Jobs <span className='open_percentage uk-margin-left'>{((this.state.OpenTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.OpenTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.OpenTickets} Devices</p>
                                     </div>
                                     <div className='uk-width-1-4@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Pending Jobs <span className='pending_percentage uk-margin-left'>{((this.state.PendingTickets + this.state.AwaitingTickets + this.state.RecievedTickets) * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Pending Jobs <span className='pending_percentage uk-margin-left'>{(((this.state.PendingTickets + this.state.AwaitingTickets + this.state.RecievedTickets) * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.PendingTickets + this.state.AwaitingTickets + this.state.RecievedTickets} </h1>
                                         <p className='uk-margin-remove'>{this.state.PendingTickets + this.state.AwaitingTickets + this.state.RecievedTickets}  Devices</p>
                                     </div>
                                     <div className='uk-width-1-4@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Jobs On-Hold <span className='onhold_percentage uk-margin-left'>{(this.state.OnHoldTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Jobs On-Hold <span className='onhold_percentage uk-margin-left'>{((this.state.OnHoldTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.OnHoldTickets} </h1>
                                         <p className='uk-margin-remove'>{this.state.OnHoldTickets}  Devices</p>
                                     </div>
                                     <div className='uk-width-1-4@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Closed Jobs <span className='closed_percentage uk-margin-left'>{(this.state.ClosedTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Closed Jobs <span className='closed_percentage uk-margin-left'>{((this.state.ClosedTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.ClosedTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.ClosedTickets} Devices</p>
                                     </div>
@@ -229,7 +232,7 @@ class Dashboard extends React.Component {
                                                         <img src={closebtn} width='80' alt='icon' />
                                                     </div>
                                                     <div className='uk-width-5-6'>
-                                                        <h4 className="uk-text-normal">Closed Job Ticket</h4>
+                                                        <h4 className="uk-text-normal">Close Job Ticket</h4>
                                                         <p className='uk-text-small'>Search for Device Warranty and Create Support Ticket </p>
                                                     </div>
                                                 </div>

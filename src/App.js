@@ -44,13 +44,13 @@ class App extends React.Component {
         }
         else {
           comp.setState({ authError: false })
-          console.log(response)
+          // console.log(response)
           if (response.data[0].status === 0) {
             cookies.set('current_session', response.data[0]._id, { path: '/', expires: new Date(Date.now() + 1800000) });
             comp.props.history.push('/password-change')
           }
           else if (response.data[0].status === 2) {
-            alert('Your Account is Deactivated.\r\n Kindly Contact Your Zinox Adminstrator For Further Assistance.')
+            alert('Your Account is Deactivated.\r\n Kindly Contact Your TDPlus Adminstrator For Further Assistance.')
             comp.setState({ isProcessing: false })
           }
           else {

@@ -6,12 +6,12 @@ import SideNav from './SideNav'
 import plusbtn from './img/plusbtn.svg'
 import loader from './img/loader.svg'
 import reportbtn from './img/reportbtn.svg'
-import closebtn from './img/closebtn.svg'
-import user from './img/user.svg'
-import engr from './img/engr.svg'
-import dept from './img/dept.svg'
+import activeWarranty from './img/active_warranty.svg'
+import expiredWarranty from './img/expired_warranty.svg'
+
 
 const cookies = new Cookies();
+
 
 class TableRow extends React.Component {
     render() {
@@ -35,9 +35,19 @@ class TableRow extends React.Component {
             default:
                 job_status = <p className='red'>Closed</p>
         }
+        var warranty_status = ''
+        switch (this.props.ticket.warranty_status) {
+            case 1:
+                warranty_status = <p className='green'><img className='' src={activeWarranty} alt='active warranty  ' width='25' /> Active</p>
+                break;
+            default:
+                warranty_status = <p className='amber'><img className='' src={expiredWarranty} alt='active warranty  ' width='25' /> Expired</p>
+        }
+
         if (this.props.ticket.status)
             return (
                 <tr>
+                    <td>{warranty_status}</td>
                     <td>{this.props.ticket.warrantyserial_id[0].product_id[0].device_name}</td>
                     <td>{job_status}</td>
                     <td>{this.props.ticket.job_tag}</td>
@@ -75,8 +85,17 @@ class TableRowOffline extends React.Component {
             default:
                 job_status = <p className='red'>Closed</p>
         }
+        var warranty_status = ''
+        switch (this.props.ticket.warranty_status) {
+            case 1:
+                warranty_status = <p className='green'><img className='' src={activeWarranty} alt='active warranty  ' width='25' /> Active</p>
+                break;
+            default:
+                warranty_status = <p className='amber'><img className='' src={expiredWarranty} alt='active warranty  ' width='25' /> Expired</p>
+        }
         return (
             <tr>
+                <td>{warranty_status}</td>
                 {this.props.ticket ? <td>{this.props.ticket.device_name}</td> : <td>{this.props.ticket.warrantyserial_id[0].product_id[0].device_name}</td>}
                 <td>{job_status}</td>
                 <td>{this.props.ticket.job_tag}</td>
@@ -84,8 +103,10 @@ class TableRowOffline extends React.Component {
                 <td>{this.props.ticket.customer_name}</td>
                 <td>{new Date(this.props.ticket.ticket_date).toDateString()}</td>
                 {/* <td><a href={'/update/' + this.props.ticket._id} className="uk-button uk-button-small small_blue_btn">Part Order</a></td> */}
-                <td><a href={'/update-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_orange_btn">Update</a></td>
-                <td><a href={'/tracker/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">TRACK</a></td>
+                {this.props.ticket.status !== 6 &&<td><a href={'/update-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_orange_btn">Update</a></td>}
+                {this.props.ticket.status !== 6 &&<td><a href={'/tracker-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">TRACK</a></td>}
+                {this.props.ticket.status === 6 && <td colSpan='2'><a href={'/tracker-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">View Closed Ticket</a></td>}
+
             </tr>
         )
     }
@@ -105,6 +126,8 @@ class Reports extends React.Component {
             tickets: [],
             offline_tickets: [],
         }
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
 
     }
     componentDidMount() {
@@ -241,6 +264,46 @@ class Reports extends React.Component {
                 }
             });
     }
+    handleInputChange(event) { //stores input values in states
+        this.setState({ [event.target.name]: event.target.value });
+    }
+    handleSubmit(event) {
+        event.preventDefault();
+        const payload = {
+            job_tag: this.state.job_tag,
+            warranty_status: this.state.warranty_status,
+            serial: this.state.serial_number
+        }
+        this.setState({
+            isProcessing: true,
+        });
+        axios.post(API_URL + '/api/searchjobticket/', payload)
+            .then((response) => {
+                console.log(response.data)
+                this.setState({
+                    isProcessing: false,
+                    tickets: response.data,
+                })
+            })
+            .catch(error => {
+                if (error.response) {
+                    console.log(error)
+                }
+            });
+        axios.post(API_URL + '/api/searchofflinejobticket/', payload)
+            .then((response) => {
+                console.log(response.data)
+                this.setState({
+                    isProcessing: false,
+                    offline_tickets: response.data,
+                })
+            })
+            .catch(error => {
+                if (error.response) {
+                    console.log(error)
+                }
+            });
+    }
     render() {
         var totaldevices = this.state.OpenTickets + this.state.PendingTickets + this.state.OnHoldTickets + this.state.AwaitingTickets + this.state.RecievedTickets + this.state.ClosedTickets
         return (
@@ -267,42 +330,42 @@ class Reports extends React.Component {
                                 </div>
                                 <div data-uk-grid>
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Open Jobs <span className='open_percentage uk-margin-left'>{(this.state.OpenTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Open Jobs <span className='open_percentage uk-margin-left'>{((this.state.OpenTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.OpenTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.OpenTickets} Devices</p>
                                     </div>
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Pending Jobs <span className='pending_percentage uk-margin-left'>{(this.state.PendingTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Pending Jobs <span className='pending_percentage uk-margin-left'>{((this.state.PendingTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.PendingTickets} </h1>
                                         <p className='uk-margin-remove'>{this.state.PendingTickets}  Devices</p>
                                     </div>
 
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Parts Awaiting <span className='pending_percentage uk-margin-left'>{(this.state.AwaitingTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Parts Awaiting <span className='pending_percentage uk-margin-left'>{((this.state.AwaitingTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.AwaitingTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.AwaitingTickets} Devices</p>
                                     </div>
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Parts Recieved <span className='pending_percentage uk-margin-left'>{(this.state.RecievedTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Parts Recieved <span className='pending_percentage uk-margin-left'>{((this.state.RecievedTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.RecievedTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.RecievedTickets} Devices</p>
                                     </div>
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Jobs On-Hold <span className='onhold_percentage uk-margin-left'>{(this.state.OnHoldTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Jobs On-Hold <span className='onhold_percentage uk-margin-left'>{((this.state.OnHoldTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.OnHoldTickets} </h1>
                                         <p className='uk-margin-remove'>{this.state.OnHoldTickets}  Devices</p>
                                     </div>
                                     <div className='uk-width-1-3@l uk-width-1-3@m uk-width-1-2@s'>
-                                        <p className='uk-margin-remove'>Closed Jobs <span className='closed_percentage uk-margin-left'>{(this.state.ClosedTickets * 100) / totaldevices}%</span></p>
+                                        <p className='uk-margin-remove'>Closed Jobs <span className='closed_percentage uk-margin-left'>{((this.state.ClosedTickets * 100) / totaldevices).toFixed(1)}%</span></p>
                                         <h1 className='uk-margin-remove uk-heading-large uk-text-bold '>{this.state.ClosedTickets}</h1>
                                         <p className='uk-margin-remove'>{this.state.ClosedTickets} Devices</p>
                                     </div>
                                 </div>
 
                                 <hr className='uk-margin-medium' />
-                                {/* <div className='uk-margin-medium-top ' data-uk-grid>
+                                <div className='uk-margin-medium-top ' data-uk-grid>
                                     <div className='uk-width-1-2@m '>
-                                        <a href='/create-job'>
+                                        <a href='/report-search'>
                                             <div className="uk-card uk-card-default uk-card-small uk-card-body uk-text-left tool_card">
                                                 <div data-uk-grid>
                                                     <div className='uk-width-1-6'>
@@ -310,22 +373,22 @@ class Reports extends React.Component {
                                                     </div>
                                                     <div className='uk-width-5-6'>
                                                         <h4 className="uk-text-normal uk-margin-small">Generate Reports </h4>
-                                                        <p className='uk-text-small uk-margin-small'>Verify Online Warranty Status and Create Support Ticket </p>
+                                                        <p className='uk-text-small uk-margin-small'>Generate Realtime Reports based on Search Filters and Parameters </p>
                                                     </div>
                                                 </div>
 
                                             </div>
                                         </a>
                                     </div>
-                                </div> */}
+                                </div>
                                 <hr className='uk-margin-medium' />
                                 <div className="uk-background-muted uk-padding">
                                     <div className="uk-margin">
                                         <h4 className='uk-text-bold'>Search</h4>
-                                        <form method='POST' data-uk-grid onSubmit={this.handleSearch} >
+                                        <form method='POST' data-uk-grid onSubmit={this.handleSubmit} >
                                             <div className="uk-width-1-4@m">
                                                 <label className="uk-form-label uk-text-bold ">Job Tag <span className='red'>*</span></label>
-                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='job_tag' placeholder="Serial Number" onChange={this.handleInputChange} />
+                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='job_tag' placeholder="Job Tag" onChange={this.handleInputChange} />
                                             </div>
                                             <div className="uk-width-1-4@m">
                                                 <label className="uk-form-label uk-text-bold ">Serial Number <span className='red'>*</span></label>
@@ -333,7 +396,7 @@ class Reports extends React.Component {
                                             </div>
                                             <div className="uk-width-1-4@m">
                                                 <label className="uk-form-label uk-text-bold ">Job Status <span className='red'>*</span></label>
-                                                <select className="uk-input calc_input uk-margin-small-top" name='warranty_status' onChange={this.handleInputChange} required >
+                                                <select className="uk-input calc_input uk-margin-small-top" name='warranty_status' onChange={this.handleInputChange}  >
                                                     <option value=''>Select Warranty Status</option>
                                                     <option value=''>All</option>
                                                     <option value='1'>Active Warranty</option>
@@ -355,6 +418,7 @@ class Reports extends React.Component {
                                         <table className="uk-table uk-table-striped uk-overflow-auto" >
                                             <thead>
                                                 <tr>
+                                                    <th className='uk-text-bold red'>Warranty Status</th>
                                                     <th className='uk-text-bold red'>Device Name</th>
                                                     <th className='uk-text-bold red'>Job Status</th>
                                                     <th className='uk-text-bold red'>Job Tag</th>

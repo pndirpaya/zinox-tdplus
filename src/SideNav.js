@@ -20,7 +20,7 @@ class SideNav extends Component {
                         <li><a className='' href="/create-job-offline"><img src={plus} width='20' alt='' />  Create Job Ticket [ No Serial ]</a></li>
                         <li><a className='' href="/search"><img src={search} width='20' alt='' />  Search Job Ticket</a></li>
                         <li><a className='' href="/close-ticket-search"><img src={close} width='20' alt='' />  Close Job Ticket</a></li>
-                        <li><a className='' href="/"><img src={report} width='20' alt='' />  Reports</a></li>
+                        <li><a className='' href="/reports"><img src={report} width='20' alt='' />  Reports</a></li>
                         <li><a className='' href="/logout"><img src={logout} width='20' alt='' />  Logout</a></li>
                     </ul>
                 </div>

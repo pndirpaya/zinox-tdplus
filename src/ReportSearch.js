@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios'
+import Select from 'react-select';
 import { API_URL } from './apiUrl'
 import SideNav from './SideNav'
-import searchbtn from './img/searchbtn.svg'
+import searchbtn from './img/reportbtn.svg'
 import loader from './img/loader.svg'
 import activeWarranty from './img/active_warranty.svg'
 import expiredWarranty from './img/expired_warranty.svg'
@@ -49,10 +50,7 @@ class TableRow extends React.Component {
                     <td>{this.props.ticket.serial}</td>
                     <td>{this.props.ticket.customer_name}</td>
                     <td>{new Date(this.props.ticket.ticket_date).toDateString()}</td>
-                    {/* <td><a href={'/update/' + this.props.ticket._id} className="uk-button uk-button-small small_blue_btn">Part Order</a></td> */}
-                    {this.props.ticket.status !== 6 && <td><a href={'/update/' + this.props.ticket._id} className="uk-button uk-button-small small_orange_btn">Update</a></td>}
-                    {this.props.ticket.status !== 6 && <td><a href={'/tracker/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">TRACK</a></td>}
-                    {this.props.ticket.status === 6 && <td colSpan='2'><a href={'/tracker/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">View Closed Ticket</a></td>}
+                    <td><a href={'/tracker/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">View</a></td>
                 </tr>
             )
     }
@@ -97,25 +95,21 @@ class TableRowOffline extends React.Component {
                 <td>{this.props.ticket.serial}</td>
                 <td>{this.props.ticket.customer_name}</td>
                 <td>{new Date(this.props.ticket.ticket_date).toDateString()}</td>
-                {/* <td><a href={'/update/' + this.props.ticket._id} className="uk-button uk-button-small small_blue_btn">Part Order</a></td> */}
-                {this.props.ticket.status !== 6 &&<td><a href={'/update-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_orange_btn">Update</a></td>}
-                {this.props.ticket.status !== 6 &&<td><a href={'/tracker-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">TRACK</a></td>}
-                {this.props.ticket.status === 6 && <td colSpan='2'><a href={'/tracker-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">View Closed Ticket</a></td>}
-
+                <td><a href={'/tracker-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">View</a></td>
             </tr>
         )
     }
 }
 
-class Search extends React.Component {
+class ReportSearch extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            engineers: [],
+            departments: [],
+            locations: [],
             tickets: [],
             offline_tickets: [],
-            job_tag: '',
-            serial_number: '',
-            warranty_status: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -123,6 +117,9 @@ class Search extends React.Component {
     componentDidMount() {
         this.getTickets()
         this.getOfflineTickets()
+        this.getEngineers()
+        this.getDepartments()
+        this.getLocations()
     }
     handleInputChange(event) { //stores input values in states
         this.setState({ [event.target.name]: event.target.value });
@@ -154,19 +151,78 @@ class Search extends React.Component {
             });
     }
 
+    getEngineers = () => {
+        axios.get(API_URL + '/api/tdengineer/')
+            .then((response) => {
+                this.setState({
+                    engineers: response.data,
+                })
+            })
+            .catch(error => {
+                if (error.response) {
+                    console.log(error)
+                }
+            });
+    }
+    getDepartments = () => {
+        axios.get(API_URL + '/api/tddepartment/')
+            .then((response) => {
+                this.setState({
+                    departments: response.data,
+                })
+            })
+            .catch(error => {
+                if (error.response) {
+                    console.log(error)
+                }
+            });
+    }
+    getLocations = () => {
+        axios.get(API_URL + '/api/tdlocations/')
+            .then((response) => {
+                this.setState({
+                    locations: response.data,
+                })
+            })
+            .catch(error => {
+                if (error.response) {
+                    console.log(error)
+                }
+            });
+    }
+    handleEngineerChange = event => {
+        this.setState({ engineer_id: event.value });
+    };
+
+    handlLocationChange = event => {
+        this.setState({ location_id: event.value });
+    };
+
+    handlDepartmentChange = event => {
+        this.setState({ department_id: event.value });
+    };
+
+
     handleSubmit(event) {
         event.preventDefault();
         const payload = {
-            job_tag: this.state.job_tag,
-            warranty_status: this.state.warranty_status,
-            serial: this.state.serial_number
+            serial: this.state.serial_number,
+            department_id: this.state.department_id,
+            engineer_id: this.state.engineer_id,
+            location_id: this.state.location_id,
+            customer_name: this.state.customer_name,
+            customer_phone: this.state.customer_phone,
+            customer_email: this.state.customer_email,
+            from_date: this.state.from_date,
+            to_date: this.state.to_date,
+            status: this.state.status
         }
+        console.log(payload)
         this.setState({
             isProcessing: true,
         });
-        axios.post(API_URL + '/api/searchjobticket/', payload)
+        axios.post(API_URL + '/api/generatereport/', payload)
             .then((response) => {
-                console.log(response.data)
                 this.setState({
                     isProcessing: false,
                     tickets: response.data,
@@ -177,7 +233,7 @@ class Search extends React.Component {
                     console.log(error)
                 }
             });
-        axios.post(API_URL + '/api/searchofflinejobticket/', payload)
+        axios.post(API_URL + '/api/generateofflinereport/', payload)
             .then((response) => {
                 console.log(response.data)
                 this.setState({
@@ -192,6 +248,29 @@ class Search extends React.Component {
             });
     }
     render() {
+        const options = this.state.engineers.map((engineer, index) => {
+            return {
+                label: engineer.engineer_name,
+                value: engineer._id,
+                key: index
+            }
+        })
+
+        const departments = this.state.departments.map((departments, index) => {
+            return {
+                label: departments.department_name,
+                value: departments._id,
+                key: index
+            }
+        })
+
+        const locations = this.state.locations.map((location, index) => {
+            return {
+                label: location.address,
+                value: location._id,
+                key: index
+            }
+        })
         return (
             <div>
                 <section className="uk-grid-small uk-grid-match uk-text-left" data-uk-grid data-uk-height-viewport>
@@ -206,8 +285,8 @@ class Search extends React.Component {
                                         <img src={searchbtn} width='80' alt='icon' />
                                     </div>
                                     <div className='uk-width-5-6'>
-                                        <h4 className="uk-text-normal uk-margin-top uk-margin-remove-bottom">Search Support Tickets</h4>
-                                        <p className='uk-text-small uk-margin-remove'>Search Support Tickets and Update Status</p>
+                                        <h4 className="uk-text-normal uk-margin-top uk-margin-remove-bottom">Generate Reports</h4>
+                                        <p className='uk-text-small uk-margin-remove'>Generate Realtime Reports based on Search Filters and Parameters</p>
                                     </div>
                                 </div>
                                 <hr className='uk-margin-medium' />
@@ -215,27 +294,59 @@ class Search extends React.Component {
                                     <div className="uk-margin">
                                         <h4 className='uk-text-bold'>Search</h4>
                                         <form method='POST' data-uk-grid onSubmit={this.handleSubmit} >
-                                            <div className="uk-width-1-4@m">
-                                                <label className="uk-form-label uk-text-bold ">Job Tag <span className='red'>*</span></label>
-                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='job_tag' placeholder="Job Tag" onChange={this.handleInputChange} />
-                                            </div>
-                                            <div className="uk-width-1-4@m">
-                                                <label className="uk-form-label uk-text-bold ">Serial Number <span className='red'>*</span></label>
-                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='serial_number' placeholder="Serial Number" onChange={this.handleInputChange} />
-                                            </div>
-                                            <div className="uk-width-1-4@m">
+                                            <div className="uk-width-1-3@m">
                                                 <label className="uk-form-label uk-text-bold ">Job Status <span className='red'>*</span></label>
-                                                <select className="uk-input calc_input uk-margin-small-top" name='warranty_status' onChange={this.handleInputChange}  >
-                                                    <option value=''>Select Warranty Status</option>
-                                                    <option value=''>All</option>
-                                                    <option value='1'>Active Warranty</option>
-                                                    <option value='2'>Expired (Out of Warranty)</option>
+                                                <select className="uk-input calc_input uk-margin-small-top" name='status' onChange={this.handleInputChange}  >
+                                                    <option value=''>Select Job Status</option>
+                                                    <option value='1'>Open</option>
+                                                    <option value='2'>Pending</option>
+                                                    <option value='3'>On-Hold</option>
+                                                    <option value='4'>Parts-Awaiting</option>
+                                                    <option value='5'>Parts-Recieved</option>
+                                                    <option value='6'>Closed</option>
                                                 </select>
                                             </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Engineer Responsible <span className='red'>*</span></label>
+                                                <Select className="calc_input uk-margin-small-top" options={options} name='engineer_id' onChange={this.handleEngineerChange} required />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Department <span className='red'>*</span></label>
+                                                <Select className="calc_input uk-margin-small-top" options={departments} name='department_id' onChange={this.handlDepartmentChange} required />
+
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Store Location <span className='red'>*</span></label>
+                                                <Select className="calc_input uk-margin-small-top" options={locations} name='location_id' onChange={this.handlLocationChange} required />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Customer Name <span className='red'>*</span></label>
+                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='customer_name' placeholder="Customer Name" onChange={this.handleInputChange} />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Customer Email <span className='red'>*</span></label>
+                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='customer_email' placeholder="Customer Email" onChange={this.handleInputChange} />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">Customer Phone <span className='red'>*</span></label>
+                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='customer_phone' placeholder="Customer Phone" onChange={this.handleInputChange} />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">From <span className='red'>*</span></label>
+                                                <input className="uk-input calc_input uk-margin-small-top" type="date" name='from_date' placeholder="From Date" onChange={this.handleInputChange} />
+                                            </div>
+                                            <div className="uk-width-1-3@m">
+                                                <label className="uk-form-label uk-text-bold ">To <span className='red'>*</span></label>
+                                                <input className="uk-input calc_input uk-margin-small-top" type="date" name='to_date' placeholder="To Date" onChange={this.handleInputChange} />
+                                            </div>
+                                         
+
 
                                             <div className="uk-margin-top uk-width-auto">
-                                                {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right slider_btn">Search</button>}
+                                                {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right orange_btn">Generate Report</button>}
                                                 {this.state.isProcessing && <h4 className="uk-form-label uk-text-bold "><img className='uk-margin-right' src={loader} width='40' alt='loader' /> Searching...</h4>}
+                                                <a href='/report-search' className="uk-button uk-margin-right outline_btn">Clear Search</a>
+
 
                                             </div>
                                         </form>
@@ -277,6 +388,9 @@ class Search extends React.Component {
                                             </tbody>
 
                                         </table>
+                                        <div className='uk-width-1-4@m '>
+                                                    <a href='/' onClick={() => window.print()} className="uk-button uk-margin-right black_btn">Print Report</a>
+                                                </div>
                                     </div>
 
                                 </div>
@@ -288,6 +402,6 @@ class Search extends React.Component {
         )
     }
 }
-export default Search;
+export default ReportSearch;
 
 

@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios'
 import { API_URL } from './apiUrl'
 import SideNav from './SideNav'
-import searchbtn from './img/searchbtn.svg'
+import closebtn from './img/closebtn.svg'
 import loader from './img/loader.svg'
 import activeWarranty from './img/active_warranty.svg'
 import expiredWarranty from './img/expired_warranty.svg'
@@ -50,16 +50,16 @@ class UpdateRow extends React.Component {
 
     }
 }
-class UpdateTicket extends React.Component {
+class CloseTicket extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             ticket: [],
             updates: [],
             isProcessing: false,
-            title: '',
+            title: 'Ticket Closed',
             description: '',
-            stage: ''
+            stage: 6
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -69,7 +69,7 @@ class UpdateTicket extends React.Component {
         this.getUpdates()
     }
     getTicket = () => {
-        axios.get(API_URL + '/api/tdjobticketid/' + _id)
+        axios.get(API_URL + '/api/tdofflinejobticketid/' + _id)
             .then((response) => {
                 this.setState({
                     ticket: response.data[0],
@@ -110,14 +110,14 @@ class UpdateTicket extends React.Component {
         this.setState({
             isProcessing: true,
         });
-        axios.post(API_URL + '/api/tdupdates/', payload)
+        axios.post(API_URL + '/api/closeticketoffline/', payload)
             .then((response) => {
                 if (response.status === 201 && response.data !== '') {
                     this.setState({
                         isProcessing: false,
                     })
-                    alert('Ticket Updated')
-                    this.props.history.push('/tracker/' + _id)
+                    alert('Ticket Closed! ')
+                    this.props.history.push('/tracker-offline/' + _id)
                 }
             })
             .catch(error => {
@@ -165,18 +165,18 @@ class UpdateTicket extends React.Component {
                             <div className='uk-padding'>
                                 <div data-uk-grid className='uk-grid-medium'>
                                     <div className='uk-width-auto'>
-                                        <img src={searchbtn} width='80' alt='icon' />
+                                        <img src={closebtn} width='80' alt='icon' />
                                     </div>
                                     <div className='uk-width-5-6'>
-                                        <h4 className="uk-text-normal uk-margin-top uk-margin-remove-bottom">Update Job Ticket</h4>
-                                        <p className='uk-text-small uk-margin-remove'>Update Job ticket for Open, Pending Jobs and On-Hold Jobs</p>
+                                        <h4 className="uk-text-normal uk-margin-top uk-margin-remove-bottom">Close Job Ticket</h4>
+                                        <p className='uk-text-small uk-margin-remove'>Close a Job Ticket once Device Support is Completed</p>
                                     </div>
 
                                 </div>
                                 <hr className='uk-margin-medium' />
                                 <div className="uk-background-muted uk-padding">
                                     <div className="uk-margin">
-                                        {this.state.ticket.warrantyserial_id &&
+                                    {this.state.ticket.department_id &&
                                             <div data-uk-grid>
                                                 <div className='uk-width-1-2@m'>
                                                     <h4 className='uk-text-bold'>Job Status: {job_status}</h4>
@@ -189,13 +189,13 @@ class UpdateTicket extends React.Component {
                                                         <h5 className='uk-text-bold uk-margin-remove'>Device Name :</h5>
                                                     </div>
                                                     <div className='uk-width-1-1@m '>
-                                                        <p>{this.state.ticket.warrantyserial_id[0].product_id[0].device_name}</p>
+                                                        <p>{this.state.ticket.device_name}</p>
                                                     </div>
                                                     <div className='uk-width-1-4@m'>
                                                         <h5 className='uk-text-bold uk-margin-remove'>Device Model</h5>
                                                     </div>
                                                     <div className='uk-width-1-1@m uk-margin-remove'>
-                                                        <p>{this.state.ticket.warrantyserial_id[0].product_id[0].device_model}</p>
+                                                        <p>{this.state.ticket.device_model}</p>
                                                     </div>
                                                     <div className='uk-width-1-4@m'>
                                                         <h5 className='uk-text-bold uk-margin-remove'>Serial Number</h5>
@@ -207,13 +207,19 @@ class UpdateTicket extends React.Component {
                                                         <h5 className='uk-text-bold uk-margin-remove'>Device Information</h5>
                                                     </div>
                                                     <div className='uk-width-1-1@m'>
-                                                        <p>{this.state.ticket.warrantyserial_id[0].product_id[0].description}</p>
+                                                        <p>{this.state.ticket.device_information}</p>
                                                     </div>
                                                     <div className='uk-width-1-4@m'>
                                                         <h5 className='uk-text-bold uk-margin-remove'>Engineer</h5>
                                                     </div>
                                                     <div className='uk-width-1-1@m'>
                                                         <p>{this.state.ticket.engineer_id[0].engineer_name}</p>
+                                                    </div>
+                                                    <div className='uk-width-1-4@m'>
+                                                        <h5 className='uk-text-bold uk-margin-remove'>Location</h5>
+                                                    </div>
+                                                    <div className='uk-width-1-1@m'>
+                                                        <p>{this.state.ticket.location_id[0].address}</p>
                                                     </div>
 
                                                 </div>
@@ -249,6 +255,12 @@ class UpdateTicket extends React.Component {
                                                     <div className='uk-width-1-1@m'>
                                                         <p>{this.state.ticket.department_id[0].department_name}</p>
                                                     </div>
+                                                    <div className='uk-width-1-4@m'>
+                                                        <h5 className='uk-text-bold uk-margin-remove'>Proof of Purchase</h5>
+                                                    </div>
+                                                    <div className='uk-width-3-4@m'>
+                                                        <p>{this.state.ticket.proof_purchase} <a target="blank_" href={API_URL + '/uploads/' + this.state.ticket.proof_purchase}>View</a></p>
+                                                    </div>
                                                 </div>
                                                 <div className='uk-width-1-1@m uk-margin-remove'>
                                                     <div className='uk-width-1-4@m'>
@@ -268,7 +280,7 @@ class UpdateTicket extends React.Component {
                                 <hr className='uk-margin-medium' />
                                 <div className='uk-width-1-1@m uk-margin-large'>
                                     <h3 className='uk-text-bold tag'><span>Job Tag: {this.state.ticket.job_tag}</span></h3>
-                                    <a href={'/part-order/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a>
+                                    {/* <a href={'/part-order/' + this.state.ticket._id} className="uk-button uk-margin-right blue_btn">Make Part Order</a> */}
                                 </div>
                                 <div className='uk-margin'>
                                     <button className="uk-button  blue" type="button" data-uk-toggle="target: #toggle-usage"> <span uk-icon="icon: settings; ratio: 0.8"> </span>  Toggle Tracker Visibility</button>
@@ -282,11 +294,11 @@ class UpdateTicket extends React.Component {
                                             </div>
                                             <div className='uk-width-3-5@m'>
                                                 <h3 className='uk-text-bold'>Device Recieved at TDPlus Service Center</h3>
-                                                {this.state.ticket.warrantyserial_id && <p>{this.state.ticket.warrantyserial_id[0].product_id[0].device_name} received at the service center</p>}
-                                                {this.state.ticket.warrantyserial_id && <p>{this.state.ticket.location_id[0].address} </p>}
+                                                {this.state.ticket.location_id && <p>{this.state.ticket.device_name} received at the service center</p>}
+                                                {this.state.ticket.location_id && <p>{this.state.ticket.location_id[0].address} </p>}
                                             </div>
                                             <div className='uk-width-1-5@m'>
-                                                {this.state.ticket.warrantyserial_id && <p>{(new Date(this.state.ticket.ticket_date).toDateString())}</p>}
+                                                {this.state.ticket.location_id && <p>{(new Date(this.state.ticket.ticket_date).toDateString())}</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -301,32 +313,17 @@ class UpdateTicket extends React.Component {
                                 <hr className='uk-margin-medium' />
                                 {this.state.ticket.status !== 6 &&
                                     <div>
-                                        <h3 className='uk-text-bold '><span>Update Ticket</span></h3>
-
+                                        <h3 className='uk-text-bold '>Complete Job & Close Ticket</h3>
                                         <form data-uk-grid method='POST' onSubmit={this.handleSubmit}>
                                             <div className="uk-width-1-2@m">
-                                                <div className="uk-width-1-1@m">
-                                                    <label className="uk-form-label uk-text-bold ">Job Update Title <span className='red'>*</span></label>
-                                                    <input className="uk-input calc_input uk-margin-small-top" type="text" name='title' placeholder="Enter Update title" onChange={this.handleInputChange} required />
-                                                </div>
+
                                                 <div className="uk-width-1-1@m uk-margin-top">
-                                                    <label className="uk-form-label uk-text-bold ">Job Update Description <span className='red'>*</span></label>
+                                                    <label className="uk-form-label uk-text-bold ">Job Closure Comments and Notes <span className='red'>*</span></label>
                                                     <textarea className="uk-textarea calc_input uk-margin-small-top" rows="10" name='description' placeholder="Enter description" onChange={this.handleInputChange}></textarea>
                                                 </div>
                                             </div>
-                                            <div className="uk-width-1-2@m">
-                                                <div className="uk-width-1-2@m">
-                                                    <label className="uk-form-label uk-text-bold ">Device Support Stage  <span className='red'>*</span></label>
-                                                    <select className="uk-input calc_input uk-margin-small-top" name='stage' onChange={this.handleInputChange} required >
-                                                        <option value=''>Select Support Stage </option>
-                                                        <option value='1'>Open</option>
-                                                        <option value='2'>Pending</option>
-                                                        <option value='3'>On-Hold</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                             <div className="uk-width-1-1@m">
-                                                {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right slider_btn">Update Ticket</button>}
+                                                {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right slider_btn">Close Ticket</button>}
                                                 {this.state.isProcessing && <h4 className="uk-form-label uk-text-bold "><img className='uk-margin-right' src={loader} width='40' alt='loader' /> Updating Job Ticket...</h4>}
                                             </div>
                                         </form>
@@ -342,4 +339,4 @@ class UpdateTicket extends React.Component {
 
 }
 
-export default UpdateTicket
+export default CloseTicket

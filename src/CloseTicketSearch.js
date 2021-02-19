@@ -4,6 +4,8 @@ import { API_URL } from './apiUrl'
 import SideNav from './SideNav'
 import closebtn from './img/closebtn.svg'
 import loader from './img/loader.svg'
+import activeWarranty from './img/active_warranty.svg'
+import expiredWarranty from './img/expired_warranty.svg'
 
 
 class TableRow extends React.Component {
@@ -28,9 +30,19 @@ class TableRow extends React.Component {
             default:
                 job_status = <p className='red'>Closed</p>
         }
-        if (this.props.ticket.status)
+        var warranty_status = ''
+        switch (this.props.ticket.warranty_status) {
+            case 1:
+                warranty_status = <p className='green'><img className='' src={activeWarranty} alt='active warranty  ' width='25' /> Active</p>
+                break;
+            default:
+                warranty_status = <p className='amber'><img className='' src={expiredWarranty} alt='active warranty  ' width='25' /> Expired</p>
+        }
+
+        if (this.props.ticket.status !== 6)
             return (
                 <tr>
+                    <td>{warranty_status}</td>
                     <td>{this.props.ticket.warrantyserial_id[0].product_id[0].device_name}</td>
                     <td>{job_status}</td>
                     <td>{this.props.ticket.job_tag}</td>
@@ -40,11 +52,18 @@ class TableRow extends React.Component {
                     <td><a href={'/close-ticket/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">Close Ticket</a></td>
                 </tr>
             )
+        if (this.props.ticket.status === 6)
+            return (
+                <tr></tr>
+            )
+
     }
 }
 
 class TableRowOffline extends React.Component {
     render() {
+        console.log(this.props.ticket)
+
         var job_status = ''
         switch (this.props.ticket.status) {
             case 1:
@@ -65,17 +84,31 @@ class TableRowOffline extends React.Component {
             default:
                 job_status = <p className='red'>Closed</p>
         }
-        return (
-            <tr>
-                {this.props.ticket ? <td>{this.props.ticket.device_name}</td> : <td>{this.props.ticket.warrantyserial_id[0].product_id[0].device_name}</td>}
-                <td>{job_status}</td>
-                <td>{this.props.ticket.job_tag}</td>
-                <td>{this.props.ticket.serial}</td>
-                <td>{this.props.ticket.customer_name}</td>
-                <td>{new Date(this.props.ticket.ticket_date).toDateString()}</td>
-                <td><a href={'/close-offline-ticket/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn"> Close Ticket</a></td>
-            </tr>
-        )
+        var warranty_status = ''
+        switch (this.props.ticket.warranty_status) {
+            case 1:
+                warranty_status = <p className='green'><img className='' src={activeWarranty} alt='active warranty  ' width='25' /> Active</p>
+                break;
+            default:
+                warranty_status = <p className='amber'><img className='' src={expiredWarranty} alt='active warranty  ' width='25' /> Expired</p>
+        }
+        if (this.props.ticket.status !== 6)
+            return (
+                <tr>
+                    <td>{warranty_status}</td>
+                    <td>{this.props.ticket.device_name}</td>
+                    <td>{job_status}</td>
+                    <td>{this.props.ticket.job_tag}</td>
+                    <td>{this.props.ticket.serial}</td>
+                    <td>{this.props.ticket.customer_name}</td>
+                    <td>{new Date(this.props.ticket.ticket_date).toDateString()}</td>
+                    <td><a href={'/close-ticket-offline/' + this.props.ticket._id} className="uk-button uk-button-small small_slider_btn">Close Ticket</a></td>
+                </tr>
+            )
+        if (this.props.ticket.status === 6)
+            return (
+                <tr></tr>
+            )
     }
 }
 
@@ -189,11 +222,20 @@ class CloseTicket extends React.Component {
                                         <form method='POST' data-uk-grid onSubmit={this.handleSubmit} >
                                             <div className="uk-width-1-4@m">
                                                 <label className="uk-form-label uk-text-bold ">Job Tag <span className='red'>*</span></label>
-                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='job_tag' placeholder="Serial Number" onChange={this.handleInputChange} />
+                                                <input className="uk-input calc_input uk-margin-small-top" type="text" name='job_tag' placeholder="Job Tag" onChange={this.handleInputChange} />
                                             </div>
                                             <div className="uk-width-1-4@m">
                                                 <label className="uk-form-label uk-text-bold ">Serial Number <span className='red'>*</span></label>
                                                 <input className="uk-input calc_input uk-margin-small-top" type="text" name='serial_number' placeholder="Serial Number" onChange={this.handleInputChange} />
+                                            </div>
+                                            <div className="uk-width-1-4@m">
+                                                <label className="uk-form-label uk-text-bold ">Job Status <span className='red'>*</span></label>
+                                                <select className="uk-input calc_input uk-margin-small-top" name='warranty_status' onChange={this.handleInputChange}  >
+                                                    <option value=''>Select Warranty Status</option>
+                                                    <option value=''>All</option>
+                                                    <option value='1'>Active Warranty</option>
+                                                    <option value='2'>Expired (Out of Warranty)</option>
+                                                </select>
                                             </div>
 
                                             <div className="uk-margin-top uk-width-auto">
@@ -210,6 +252,7 @@ class CloseTicket extends React.Component {
                                         <table className="uk-table uk-table-striped uk-overflow-auto" >
                                             <thead>
                                                 <tr>
+                                                    <th className='uk-text-bold red'>Warranty Status</th>
                                                     <th className='uk-text-bold red'>Device Name</th>
                                                     <th className='uk-text-bold red'>Job Status</th>
                                                     <th className='uk-text-bold red'>Job Tag</th>

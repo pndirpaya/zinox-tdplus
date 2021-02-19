@@ -101,6 +101,7 @@ class PartOrder extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         const payload = {
+            offlineticket_id: _id,
             ticket_id: _id,
             description: this.state.description,
             stage: this.state.stage

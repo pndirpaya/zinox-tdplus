@@ -14,9 +14,11 @@ import CreateOfflineJobTicket from './CreateOfflineJobTicket';
 import UpdateTicket from './UpdateTicket';
 import Search from './Search';
 import Tracker from './Tracker';
+import TrackerOffline from './TrackerOffline';
 import PartOrder from './PartOrder';
 import CloseTicketSearch from './CloseTicketSearch';
 import CloseTicket from './CloseTicket';
+import CloseTicketOffline from './CloseTicketOffline';
 import Error404 from './Error404';
 import ManageUser from './ManageUsers';
 import EditUser from './EditUser';
@@ -25,6 +27,11 @@ import EditEngineer from './EditEngineer';
 import ManageDepartment from './ManageDepartment';
 import EditDepartment from './EditDepartment';
 import Reports from './Reports';
+import PasswordChange from './Pssswordchange';
+import Logout from './Logout';
+import ReportSearch from './ReportSearch';
+import UpdateTicketOffline from './UpdateTicketOffline';
+import PartOrderOffline from './PartOrderOffline';
 
 
 
@@ -47,9 +54,13 @@ const MainApp = () => {
           <Route path="/search" exact component={Search} />
           <Route path="/close-ticket-search" exact component={CloseTicketSearch} />
           <Route path="/close-ticket/:id" exact component={CloseTicket} />
+          <Route path="/close-ticket-offline/:id" exact component={CloseTicketOffline} />
           <Route path="/update/:id" exact component={UpdateTicket} />
+          <Route path="/update-offline/:id" exact component={UpdateTicketOffline} />
           <Route path="/tracker/:id" exact component={Tracker} />
+          <Route path="/tracker-offline/:id" exact component={TrackerOffline} />
           <Route path="/part-order/:id" exact component={PartOrder} />
+          <Route path="/part-order-offline/:id" exact component={PartOrderOffline} />
           <Route path="/manage-user" exact component={ManageUser} />
           <Route path="/edit-user/:id" exact component={EditUser} />
           <Route path="/manage-engineer" exact component={ManageEngineer} />
@@ -57,6 +68,9 @@ const MainApp = () => {
           <Route path="/manage-department" exact component={ManageDepartment} />
           <Route path="/edit-department/:id" exact component={EditDepartment} />
           <Route path="/reports" exact component={Reports} />
+          <Route path="/report-search" exact component={ReportSearch} />
+          <Route path="/password-change" exact component={PasswordChange} />
+          <Route path="/logout" exact component={Logout} />
 
 
 
