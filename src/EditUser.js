@@ -79,7 +79,6 @@ class EditUserForm extends React.Component {
                     <input className="uk-input calc_input uk-margin-small-top" value={this.state.phone} type="text" name='phone' placeholder="Email Address" onChange={this.handleInputChange} />
                 </div>
                 <div className="uk-margin">
-
                     <label className="uk-form-label uk-text-bold ">User Type <span className='red'>* | Current Role:{this.state.user_type === 1 ? <span>Super Administrator</span> : <span>Admin User</span>} </span></label>
                     <select className="uk-select calc_input uk-margin-small-top" name='user_type' onChange={this.handleInputChange}>
                         <option value='' defaultValue >Select a Type</option>

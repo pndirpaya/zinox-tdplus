@@ -10,11 +10,21 @@ const cookies = new Cookies();
 
 class TableRow extends React.Component {
     render() {
+        console.log(this.props)
+        let status;
+        if (this.props.engr.status === 2) {
+            status = <td className='black'>Inactive</td>;
+        }
+        else if (this.props.engr.status === 1) {
+            status = <td className='green'>Active</td>
+        }
+        
         return (
             <tr>
                 <td>{this.props.engr.engineer_name}</td>
                 <td>{this.props.engr.engineer_phone}</td>
                 <td>{this.props.engr.engineer_email}</td>
+                {status}
                 <td>{(new Date(this.props.engr.create_date)).toDateString()}</td>
                 <td><a href={'/edit-engineer/' + this.props.engr._id} className="uk-button uk-button-small small_slider_btn">Manage</a></td>
             </tr>
@@ -50,7 +60,7 @@ class ManageEngineer extends React.Component {
         }
     }
     getEengineers = () => {
-        axios.get(API_URL + '/api/tdengineer/')
+        axios.get(API_URL + '/api/tdengineerall/')
             .then((response) => {
                 this.setState({
                     engineers: response.data,
@@ -150,6 +160,7 @@ class ManageEngineer extends React.Component {
                                                             <th className='uk-text-bold red'>Name</th>
                                                             <th className='uk-text-bold red'>Phone</th>
                                                             <th className='uk-text-bold red'>Email</th>
+                                                            <th className='uk-text-bold red'>Status</th>
                                                             <th className='uk-text-bold red'>Date Created</th>
                                                         </tr>
                                                     </thead>

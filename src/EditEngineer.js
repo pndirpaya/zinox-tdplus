@@ -16,7 +16,8 @@ class EditUserForm extends React.Component {
         this.state = {
             engineer_name: '',
             engineer_phone: '',
-            engineer_email:''
+            engineer_email:'',
+            status:''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -28,6 +29,7 @@ class EditUserForm extends React.Component {
                 engineer_name: this.props.engr.engineer_name,
                 engineer_phone: this.props.engr.engineer_phone,
                 engineer_email: this.props.engr.engineer_email,
+                status: this.props.engr.status,
             })
         }
     }
@@ -44,7 +46,8 @@ class EditUserForm extends React.Component {
         const payload = {
             engineer_name: this.state.engineer_name,
             engineer_phone: this.state.engineer_phone,
-            engineer_email: this.state.engineer_email
+            engineer_email: this.state.engineer_email,
+            status: this.state.status
         }
         axios.put(API_URL + '/api/tdengineer/' + userID, payload)
             .then(function (response) {
@@ -76,9 +79,17 @@ class EditUserForm extends React.Component {
                     <label className="uk-form-label uk-text-bold ">Phone <span className='red'>*</span></label>
                     <input className="uk-input calc_input uk-margin-small-top" value={this.state.engineer_phone} type="text" name='engineer_phone' placeholder="Email Address" onChange={this.handleInputChange} />
                 </div>
+                <div className="uk-margin">
+                    <label className="uk-form-label uk-text-bold ">Engineer Status </label>
+                    <select className="uk-select calc_input uk-margin-small-top" name='status' onChange={this.handleInputChange}>
+                        <option value='' defaultValue >Select a Type</option>
+                        <option value='1'>Active</option>
+                        <option value='2'>Inactive</option>
+                    </select>
+                </div>
                 <div className="uk-margin-large-top">
-                    {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right uk-width-2-3@m slider_btn">Update User</button>}
-                    {this.state.isProcessing && <h4 className="uk-form-label uk-text-bold "><img className='uk-margin-right' src={loader} width='40' alt='loader' /> Update New Admin User</h4>}
+                    {!this.state.isProcessing && <button type='submit' className="uk-button uk-margin-right uk-width-2-3@m slider_btn">Update Engineer</button>}
+                    {this.state.isProcessing && <h4 className="uk-form-label uk-text-bold "><img className='uk-margin-right' src={loader} width='40' alt='loader' /> Update Engineer</h4>}
                 </div>
             </form>
         )
